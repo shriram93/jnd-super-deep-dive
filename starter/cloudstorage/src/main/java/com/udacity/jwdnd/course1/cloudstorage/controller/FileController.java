@@ -9,19 +9,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping
 public class FileController {
 
-    private String getHomeView(Model model) {
+    private String createHomeView(Model model) {
         model.addAttribute("activeTab", "files");
         return "home";
     }
 
     @GetMapping("/home/files")
     public String fileView(Model model) {
-        return getHomeView(model);
+        return createHomeView(model);
     }
 
     @GetMapping("/home")
     public String defaultHomeView(Model model) {
-        return getHomeView(model);
+        return createHomeView(model);
     }
 
 }

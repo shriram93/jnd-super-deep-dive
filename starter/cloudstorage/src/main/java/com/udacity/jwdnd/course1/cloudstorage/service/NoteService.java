@@ -26,4 +26,12 @@ public class NoteService {
     public int createNote(Note note) {
         return noteMapper.insertNote(note);
     }
+
+    public boolean updateNote(Note note) {
+        return noteMapper.updateNote(note.getNoteId(), note.getTitle(), note.getDescription());
+    }
+
+    public boolean deleteNote(int noteId) {
+        return noteMapper.deleteNote(noteId);
+    }
 }

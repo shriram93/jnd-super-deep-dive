@@ -60,12 +60,16 @@
                             </table>
                         </div>
                     </div>
-                    <div class="tab-pane fade" th:classappend="${activeTab == 'notes'} ? 'show active'" id="notes" role="tabpanel" aria-labelledby="nav-notes-tab">
-                        <button style="margin: 0.25em;" type="button" class="btn btn-info float-right" onclick="showNoteModal()">
-                            + Add a New Note
-                        </button>
-
-                        <div class="table-responsive">
+                    <div th:if="${notes}" class="tab-pane fade" th:classappend="${activeTab == 'notes'} ? 'show active'" id="notes" role="tabpanel" aria-labelledby="nav-notes-tab">
+                        <div class="d-flex flex-row-reverse mt-2">
+                            <button type="button" class="btn btn-info" onclick="showNoteModal()">
+                                + Add a New Note
+                            </button>
+                        </div>
+                        <div th:if="${notes.size() == 0}" class="alert alert-dark mt-4 text-center">
+                            No notes available
+                        </div>
+                        <div th:unless="${notes.size() == 0}" class="table-responsive mt-4">
                             <table class="table table-striped" id="userTable">
                                 <thead>
                                     <tr>
@@ -77,8 +81,17 @@
                                 <tbody>
                                     <tr th:each="note : ${notes}">
                                         <td>
-                                            <button type="button" class="btn btn-success">Edit</button>
-                                            <a class="btn btn-danger">Delete</a>
+                                            <button type="button" class="btn btn-success"
+                                                    th:data-note-id="|${note.noteId}|"
+                                                    th:data-note-title="|${note.title}|"
+                                                    th:data-note-description="|${note.description}|"
+                                                    onclick="showNoteModal(
+                                                        this.getAttribute('data-note-id'),
+                                                        this.getAttribute('data-note-title'),
+                                                        this.getAttribute('data-note-description'))">Edit</button>
+                                            <form action="#" th:action="@{/home/notes/{id}(id=${note.noteId})}" class="d-inline" th:method="delete">
+                                                <button type="submit" class="btn btn-danger">Delete</button>
+                                            </form>
                                         </td>
                                         <th scope="row" th:text="${note.title}">Example Note Title</th>
                                         <td th:text="${note.description}">Example Note Description </td>
@@ -87,7 +100,7 @@
                             </table>
                         </div>
 
-                        <div class="modal fade" id="noteModal" tabindex="-1" role="dialog" aria-labelledby="noteModalLabel" aria-hidden="true">
+                        <div th:if="${note}" class="modal fade" id="noteModal" tabindex="-1" role="dialog" aria-labelledby="noteModalLabel" aria-hidden="true">
                             <div class="modal-dialog" role="document">
                                 <div class="modal-content">
                                     <div class="modal-header">
@@ -97,15 +110,15 @@
                                         </button>
                                     </div>
                                     <div class="modal-body">
-                                        <form action="#" method="POST">
-                                            <input type="hidden" name="noteId" id="note-id">
+                                        <form id="form-note" th:object="${note}" action="#" th:action="@{/home/notes}" method="POST">
+                                            <input th:field="*{noteId}" type="hidden" name="noteId" id="note-id">
                                             <div class="form-group">
                                                 <label for="note-title" class="col-form-label">Title</label>
-                                                <input type="text" name= "noteTitle" class="form-control" id="note-title" maxlength="20" required>
+                                                <input th:field="*{title}" type="text" name="noteTitle" class="form-control" id="note-title" maxlength="20" required>
                                             </div>
                                             <div class="form-group">
                                                 <label for="note-description" class="col-form-label">Description</label>
-                                                <textarea class="form-control" name="noteDescription" id="note-description" rows="5" maxlength="1000" required></textarea>
+                                                <textarea th:field="*{description}" class="form-control" name="noteDescription" id="note-description" rows="5" maxlength="1000" required></textarea>
                                             </div>
                                             <button id="noteSubmit" type="submit" class="d-none"></button>
                                         </form>
@@ -118,12 +131,18 @@
                             </div>
                         </div>
                     </div>
-                    <div class="tab-pane fade" th:classappend="${activeTab == 'credentials'} ? 'show active'" id="credentials" role="tabpanel" aria-labelledby="nav-credentials-tab">
-                        <button style="margin: 0.25em;" type="button" class="btn btn-info float-right" onclick="showCredentialModal()">
-                            + Add a New Credential
-                        </button>
+                    <div th:if="${credentials}" class="tab-pane fade" th:classappend="${activeTab == 'credentials'} ? 'show active'" id="credentials" role="tabpanel" aria-labelledby="nav-credentials-tab">
+                        <div class="d-flex flex-row-reverse mt-2">
+                            <button type="button" class="btn btn-info" onclick="showCredentialModal()">
+                                + Add a New Credential
+                            </button>
+                        </div>
 
-                        <div class="table-responsive">
+                        <div th:if="${credentials.size() == 0}" class="alert alert-dark mt-4 text-center">
+                            No credentials available
+                        </div>
+
+                        <div th:unless="${credentials.size() == 0}" class="table-responsive">
                             <table class="table table-striped" th:object="${credentials}" id="credentialTable">
                                 <thead>
                                     <tr>
@@ -193,10 +212,10 @@
         <!--For opening the note modal-->
         <script type="text/javascript">
             // For opening the note modal
-            function showNoteModal(noteId, noteTitle, noteDescription) {
+            function showNoteModal(noteId, title, description) {
                 $('#note-id').val(noteId ? noteId : '');
-                $('#note-title').val(noteTitle ? noteTitle : '');
-                $('#note-description').val(noteDescription ? noteDescription : '');
+                $('#note-title').val(title ? title : '');
+                $('#note-description').val(description ? description : '');
                 $('#noteModal').modal('show');
             }
 
