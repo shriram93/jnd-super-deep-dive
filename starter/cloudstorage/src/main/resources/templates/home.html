@@ -25,7 +25,7 @@
                 </nav>
                 <div class="tab-content" id="nav-tabContent">
                     <div th:if="${activeTab == 'files'}" class="tab-pane fade show active" id="files" role="tabpanel" aria-labelledby="nav-files-tab">
-                        <form action="#" enctype="multipart/form-data" method="POST">
+                        <form action="#" th:action="@{/home/files}" enctype="multipart/form-data" method="POST">
                             <div class="container">
                                 <div class="row" style="margin: 1em;">
                                     <div class="col-sm-2">
@@ -40,7 +40,10 @@
                                 </div>
                             </div>
                         </form>
-                        <div class="table-responsive mt-4">
+                        <div th:if="${files.size() == 0}" class="alert alert-dark mt-4 text-center">
+                            No files available
+                        </div>
+                        <div th:unless="${files.size() == 0}" class="table-responsive mt-4">
                             <table class="table table-striped" id="fileTable">
                                 <thead>
                                     <tr>
