@@ -18,7 +18,11 @@ public interface CredentialMapper {
     int insertCredential(Credential credential);
 
     @Update("UPDATE CREDENTIALS SET url = #{url}, username = #{username}, key = #{key}, password = #{password} WHERE credentialId = ${credentialId}")
-    boolean updateCredential(@Param("credentialId") Integer credentialId,@Param("title") String title,@Param("description") String description);
+    boolean updateCredential(@Param("credentialId") Integer credentialId,
+                             @Param("url") String url,
+                             @Param("username") String username,
+                             @Param("username") String key,
+                             @Param("username") String password);
 
     @Delete("DELETE FROM CREDENTIALS WHERE credentialId = #{credentialId}")
     boolean deleteCredential(Integer credentialId);
