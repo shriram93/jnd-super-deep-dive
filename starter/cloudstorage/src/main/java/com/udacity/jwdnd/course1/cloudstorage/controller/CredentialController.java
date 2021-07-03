@@ -24,7 +24,7 @@ public class CredentialController {
 
     private String createCredentialView(Model model) {
         model.addAttribute("activeTab", "credentials");
-        model.addAttribute("notes", credentialService.getAllCredentials());
+        model.addAttribute("credentials", credentialService.getAllCredentials());
         return "home";
     }
 
