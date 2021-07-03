@@ -9,7 +9,7 @@ import java.util.List;
 @Mapper
 public interface FileMapper {
     @Select("SELECT * FROM FILES")
-    List<Credential> getAllFiles();
+    List<File> getAllFiles();
 
     @Select("SELECT * FROM FILES WHERE fileId = #{fileId}")
     File getFile(Integer fileId);
