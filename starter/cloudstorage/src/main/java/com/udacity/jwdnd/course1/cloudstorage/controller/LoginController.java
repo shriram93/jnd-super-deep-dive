@@ -24,7 +24,10 @@ public class LoginController {
 
     @GetMapping("/login")
     public String loginView() {
-        userService.createUser(new User(null, "shri", null, "ram", "shri", "ram"));
+        User user = userService.getUser("shri");
+        if (user == null) {
+            userService.createUser(new User(null, "shri", null, "ram", "shri", "ram"));
+        }
         return "login";
     }
 }
