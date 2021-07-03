@@ -37,7 +37,7 @@ public class NoteController {
         // If noteId present, then update note
         if (noteId != null) {
             noteService.updateNote(note);
-        } else {// If note, then insert as new note
+        } else {// If not, then insert as new note
             // Get user id from user name
             String userName = authentication.getName();
             Integer userId = userService.getUser(userName).getUserId();
