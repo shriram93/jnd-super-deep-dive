@@ -22,7 +22,7 @@ public class ValidateUserInterceptor implements HandlerInterceptor {
         String userName = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userService.getUser(userName);
         if (user == null) {
-            response.sendRedirect(request.getContextPath()+"/login");
+            response.sendRedirect(request.getContextPath()+"/login?logout");
             return  false;
         }
         return true;
