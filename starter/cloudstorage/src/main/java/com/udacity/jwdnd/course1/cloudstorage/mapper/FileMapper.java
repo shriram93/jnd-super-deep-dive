@@ -14,8 +14,11 @@ public interface FileMapper {
     @Select("SELECT fileId, name, contentType, size, userId FROM FILES WHERE userId=#{userId}")
     List<MinimalFile> getAllFiles(Integer userId);
 
-    @Select("SELECT fileId, name, contentType, size, userId FROM FILES WHERE userId=#{userId} AND fileId = #{fileId}")
-    MinimalFile getFile(Integer userId, Integer fileId);
+    @Select("SELECT fileId, name, contentType, size, userId FROM FILES WHERE fileId = #{fileId}")
+    MinimalFile getFileById(Integer fileId);
+
+    @Select("SELECT fileId, name, contentType, size, userId FROM FILES WHERE name = #{name}")
+    MinimalFile getFileByName(String name);
 
     @Select("SELECT fileId, name, contentType, size, userId, data FROM FILES WHERE userId=#{userId} AND fileId = #{fileId}")
     File getFileWithData(Integer userId, Integer fileId);

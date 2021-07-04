@@ -2,8 +2,10 @@ package com.udacity.jwdnd.course1.cloudstorage.service;
 
 import com.udacity.jwdnd.course1.cloudstorage.mapper.CredentialMapper;
 import com.udacity.jwdnd.course1.cloudstorage.model.Credential;
+import com.udacity.jwdnd.course1.cloudstorage.model.MinimalCredential;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -16,30 +18,27 @@ public class CredentialService {
         this.encryptionService = encryptionService;
     }
 
-    private void encryptCredentialPassword(Credential credential) {
-        String encryptedPassword = encryptionService.encryptValue(credential.getPassword(), credential.getKey());
-        credential.setPassword(encryptedPassword);
+    private MinimalCredential decryptCredentialPassword(Credential credential) {
+        return new MinimalCredential(
+                credential.getCredentialId(),
+                credential.getUrl(),
+                credential.getUsername(),
+                credential.getPassword(),
+                encryptionService.decryptValue(credential.getPassword(), credential.getKey()),
+                credential.getUserId());
     }
 
-    private void decryptCredentialPassword(Credential credential) {
-        String decryptedPassword = encryptionService.decryptValue(credential.getPassword(), credential.getKey());
-        credential.setPassword(decryptedPassword);
-        // After decrypting password, set key as null
-        credential.setKey(null);
-    }
-
-    public List<Credential> getAllCredentials(Integer userId) {
+    public List<MinimalCredential> getAllCredentials(Integer userId) {
         List<Credential> credentials = credentialMapper.getAllCredentials(userId);
+        List<MinimalCredential> minimalCredentials = new ArrayList<>();
         for (Credential credential: credentials) {
-            decryptCredentialPassword(credential);
+            minimalCredentials.add(decryptCredentialPassword(credential));
         }
-         return credentials;
+        return minimalCredentials;
     }
 
     public Credential getCredential(int credentialId) {
-        Credential credential = credentialMapper.getCredential(credentialId);
-        decryptCredentialPassword(credential);
-        return credential;
+        return credentialMapper.getCredential(credentialId);
     }
 
     public int createCredential(Credential credential) {
@@ -47,7 +46,7 @@ public class CredentialService {
         String encodedKey = encryptionService.generateRandomKey();
         credential.setKey(encodedKey);
         // Encrypt password
-        encryptCredentialPassword(credential);
+        credential.setPassword(encryptionService.encryptValue(credential.getPassword(), credential.getKey()));
         return credentialMapper.insertCredential(credential);
     }
 
@@ -56,7 +55,7 @@ public class CredentialService {
         String encodedKey = credentialMapper.getCredential(credential.getCredentialId()).getKey();
         credential.setKey(encodedKey);
         // Encrypt password
-        encryptCredentialPassword(credential);
+        credential.setPassword(encryptionService.encryptValue(credential.getPassword(), credential.getKey()));
         return credentialMapper.updateCredential(credential.getCredentialId(),
                 credential.getUrl(),
                 credential.getUsername(),

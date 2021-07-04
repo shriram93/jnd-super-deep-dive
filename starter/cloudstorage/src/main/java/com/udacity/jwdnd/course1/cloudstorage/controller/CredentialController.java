@@ -1,7 +1,6 @@
 package com.udacity.jwdnd.course1.cloudstorage.controller;
 
 import com.udacity.jwdnd.course1.cloudstorage.model.Credential;
-import com.udacity.jwdnd.course1.cloudstorage.model.Note;
 import com.udacity.jwdnd.course1.cloudstorage.service.CredentialService;
 import com.udacity.jwdnd.course1.cloudstorage.service.UserService;
 import org.springframework.security.core.Authentication;
@@ -28,7 +27,7 @@ public class CredentialController {
     }
 
     @PostMapping
-    public String createCredential(Authentication authentication, Credential credential, Model model) {
+    public String createCredential(Authentication authentication, Credential credential) {
         Integer credentialId = credential.getCredentialId();
         // If credentialId present, then update credential
         if (credentialId != null) {

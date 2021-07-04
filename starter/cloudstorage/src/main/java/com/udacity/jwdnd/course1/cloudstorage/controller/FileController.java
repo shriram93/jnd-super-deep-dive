@@ -1,11 +1,9 @@
 package com.udacity.jwdnd.course1.cloudstorage.controller;
 
 import com.udacity.jwdnd.course1.cloudstorage.model.File;
-import com.udacity.jwdnd.course1.cloudstorage.model.MinimalFile;
 import com.udacity.jwdnd.course1.cloudstorage.service.FileService;
 import com.udacity.jwdnd.course1.cloudstorage.service.UserService;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,10 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.sql.Blob;
-import java.sql.SQLException;
 
 @Controller
 @RequestMapping("/home/files")
@@ -34,16 +29,24 @@ public class FileController {
         this.userService = userService;
     }
 
-    @GetMapping
-    public String fileView(Authentication authentication, Model model) {
+    private String createFileView(Authentication authentication, Model model) {
         model.addAttribute("activeTab", "files");
         model.addAttribute("files", fileService.getAllFiles(userService.getUserId(authentication)));
         return "home";
     }
 
+    @GetMapping
+    public String fileView(Authentication authentication, Model model) {
+        return createFileView(authentication, model);
+    }
+
     @PostMapping
     public String uploadFile(Authentication authentication, @RequestParam("fileUpload") MultipartFile fileUpload, Model model) throws IOException {
         if (!fileUpload.isEmpty()) {
+            if (fileService.checkFileNameAlreadyExists(fileUpload.getOriginalFilename())) {
+                model.addAttribute("fileUploadError", "File with same name already exists.");
+                return createFileView(authentication, model);
+            }
             File newFile = new File(null,
             fileUpload.getOriginalFilename(),
             fileUpload.getContentType(),
