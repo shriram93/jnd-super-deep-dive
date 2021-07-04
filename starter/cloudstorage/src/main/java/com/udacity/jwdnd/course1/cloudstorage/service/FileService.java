@@ -18,16 +18,16 @@ public class FileService {
         this.fileMapper = fileMapper;
     }
 
-    public List<MinimalFile> getAllFiles() {
-        return fileMapper.getAllFiles();
+    public List<MinimalFile> getAllFiles(Integer userId) {
+        return fileMapper.getAllFiles(userId);
     }
 
-    public MinimalFile getFile(Integer fileId) {
-        return fileMapper.getFile(fileId);
+    public MinimalFile getFile(Integer userId, Integer fileId) {
+        return fileMapper.getFile(userId, fileId);
     }
 
-    public File getFileWithData(Integer fileId) {
-        return fileMapper.getFileWithData(fileId);
+    public File getFileWithData(Integer userId, Integer fileId) {
+        return fileMapper.getFileWithData(userId, fileId);
     }
 
     public int createFile(File file) {

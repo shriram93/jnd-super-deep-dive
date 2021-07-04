@@ -20,15 +20,11 @@ public class CredentialController {
         this.userService = userService;
     }
 
-    private String createCredentialView(Model model) {
-        model.addAttribute("activeTab", "credentials");
-        model.addAttribute("credentials", credentialService.getAllCredentials());
-        return "home";
-    }
-
     @GetMapping
-    public String credentialView(Credential credential, Model model) {
-        return createCredentialView(model);
+    public String credentialView(Authentication authentication, Credential credential, Model model) {
+        model.addAttribute("activeTab", "credentials");
+        model.addAttribute("credentials", credentialService.getAllCredentials(userService.getUserId(authentication)));
+        return "home";
     }
 
     @PostMapping
@@ -38,13 +34,10 @@ public class CredentialController {
         if (credentialId != null) {
             credentialService.updateCredential(credential);
         } else {// If not, then insert as new credential
-            // Get user id from user name
-            String userName = authentication.getName();
-            Integer userId = userService.getUser(userName).getUserId();
-            credential.setUserId(userId);
+            credential.setUserId(userService.getUserId(authentication));
             credentialService.createCredential(credential);
         }
-        return createCredentialView(model);
+        return "redirect:/home/credentials" ;
     }
 
     @DeleteMapping("/{credentialId}")

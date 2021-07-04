@@ -34,27 +34,25 @@ public class FileController {
         this.userService = userService;
     }
 
-    private String createFileView(Model model) {
-        model.addAttribute("activeTab", "files");
-        model.addAttribute("files", fileService.getAllFiles());
-        return "home";
-    }
-
     @GetMapping
-    public String defaultHomeView(Model model) {
-        return createFileView(model);
+    public String fileView(Authentication authentication, Model model) {
+        model.addAttribute("activeTab", "files");
+        model.addAttribute("files", fileService.getAllFiles(userService.getUserId(authentication)));
+        return "home";
     }
 
     @PostMapping
     public String uploadFile(Authentication authentication, @RequestParam("fileUpload") MultipartFile fileUpload, Model model) throws IOException {
-        if (fileUpload.isEmpty()) {
-            return createFileView(model);
+        if (!fileUpload.isEmpty()) {
+            File newFile = new File(null,
+            fileUpload.getOriginalFilename(),
+            fileUpload.getContentType(),
+            Long.toString(fileUpload.getSize()),
+            userService.getUserId(authentication),
+            fileUpload.getBytes());
+            fileService.createFile(newFile);
         }
-        String userName = authentication.getName();
-        Integer userId = userService.getUser(userName).getUserId();
-        File newFile = new File(null, fileUpload.getOriginalFilename(), fileUpload.getContentType(), Long.toString(fileUpload.getSize()), userId, fileUpload.getBytes());
-        fileService.createFile(newFile);
-        return createFileView(model);
+        return "redirect:/home/files";
     }
 
     @DeleteMapping("/{fileId}")
@@ -64,8 +62,8 @@ public class FileController {
     }
 
     @GetMapping("/view/{fileId}")
-    public ResponseEntity<Resource> viewFile(@PathVariable("fileId") int fileId) throws ResponseStatusException {
-        File file = fileService.getFileWithData(fileId);
+    public ResponseEntity<Resource> viewFile(Authentication authentication, @PathVariable("fileId") int fileId) throws ResponseStatusException {
+        File file = fileService.getFileWithData(userService.getUserId(authentication), fileId);
         if (file == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }

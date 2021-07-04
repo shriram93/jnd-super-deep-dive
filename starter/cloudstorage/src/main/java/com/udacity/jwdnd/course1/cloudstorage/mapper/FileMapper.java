@@ -11,14 +11,14 @@ import java.util.List;
 
 @Mapper
 public interface FileMapper {
-    @Select("SELECT fileId, name, contentType, size, userId FROM FILES")
-    List<MinimalFile> getAllFiles();
+    @Select("SELECT fileId, name, contentType, size, userId FROM FILES WHERE userId=#{userId}")
+    List<MinimalFile> getAllFiles(Integer userId);
 
-    @Select("SELECT fileId, name, contentType, size, userId FROM FILES WHERE fileId = #{fileId}")
-    MinimalFile getFile(Integer fileId);
+    @Select("SELECT fileId, name, contentType, size, userId FROM FILES WHERE userId=#{userId} AND fileId = #{fileId}")
+    MinimalFile getFile(Integer userId, Integer fileId);
 
-    @Select("SELECT fileId, name, contentType, size, userId, data FROM FILES WHERE fileId = #{fileId}")
-    File getFileWithData(Integer fileId);
+    @Select("SELECT fileId, name, contentType, size, userId, data FROM FILES WHERE userId=#{userId} AND fileId = #{fileId}")
+    File getFileWithData(Integer userId, Integer fileId);
 
     @Insert("INSERT INTO FILES (name, contentType, size, userId, data) VALUES(#{name}, #{contentType}, #{size}, #{userId}, #{data})")
     @Options(useGeneratedKeys = true, keyProperty = "fileId")

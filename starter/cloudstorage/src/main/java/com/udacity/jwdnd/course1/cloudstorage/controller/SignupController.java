@@ -42,6 +42,7 @@ public class SignupController {
         if (signupError == null) {
             model.addAttribute("signupSuccess", true);
         } else {
+            System.out.println(signupError);
             model.addAttribute("signupError", signupError);
         }
 

@@ -28,8 +28,8 @@ public class CredentialService {
         credential.setKey(null);
     }
 
-    public List<Credential> getAllCredentials() {
-        List<Credential> credentials = credentialMapper.getAllCredentials();
+    public List<Credential> getAllCredentials(Integer userId) {
+        List<Credential> credentials = credentialMapper.getAllCredentials(userId);
         for (Credential credential: credentials) {
             decryptCredentialPassword(credential);
         }
