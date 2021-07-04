@@ -20,29 +20,36 @@ public class NoteController {
         this.userService = userService;
     }
 
-    @GetMapping
-    public String noteView(Authentication authentication, Note note,Model model) {
+    private String createNoteView(Authentication authentication, Model model) {
         model.addAttribute("activeTab", "notes");
         model.addAttribute("notes", noteService.getAllNotes(userService.getUserId(authentication)));
         return "home";
     }
 
+    @GetMapping
+    public String noteView(Authentication authentication, Note note,Model model) {
+       return createNoteView(authentication, model);
+    }
+
     @PostMapping
-    public String createNote(Authentication authentication, Note note) {
+    public String createNote(Authentication authentication, Note note, Model model) {
         Integer noteId = note.getNoteId();
         // If noteId present, then update note
         if (noteId != null) {
             noteService.updateNote(note);
+            model.addAttribute("noteActionSuccess", "Note updated successfully.");
         } else {// If not, then insert as new note
             note.setUserId(userService.getUserId(authentication));
             noteService.createNote(note);
+            model.addAttribute("noteActionSuccess", "Note added successfully.");
         }
-        return "redirect:/home/notes";
+        return createNoteView(authentication, model);
     }
 
     @DeleteMapping("/{noteId}")
-    public String deleteNote(@PathVariable("noteId") int noteId) {
+    public String deleteNote(Authentication authentication, @PathVariable("noteId") int noteId, Model model) {
         noteService.deleteNote(noteId);
-        return "redirect:/home/notes";
+        model.addAttribute("noteActionSuccess", "Note deleted successfully.");
+        return createNoteView(authentication, model);
     }
 }

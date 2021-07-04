@@ -44,7 +44,7 @@ public class FileController {
     public String uploadFile(Authentication authentication, @RequestParam("fileUpload") MultipartFile fileUpload, Model model) throws IOException {
         if (!fileUpload.isEmpty()) {
             if (fileService.checkFileNameAlreadyExists(fileUpload.getOriginalFilename())) {
-                model.addAttribute("fileUploadError", "File with same name already exists.");
+                model.addAttribute("fileActionError", "File with same name already exists.");
                 return createFileView(authentication, model);
             }
             File newFile = new File(null,
@@ -54,14 +54,17 @@ public class FileController {
             userService.getUserId(authentication),
             fileUpload.getBytes());
             fileService.createFile(newFile);
+            model.addAttribute("fileActionSuccess", "File uploaded successfully.");
+            return createFileView(authentication, model);
         }
         return "redirect:/home/files";
     }
 
     @DeleteMapping("/{fileId}")
-    public String deleteNote(@PathVariable("fileId") int fileId) {
+    public String deleteNote(Authentication authentication, @PathVariable("fileId") int fileId, Model model) {
         fileService.deleteFile(fileId);
-        return "redirect:/home/files";
+        model.addAttribute("fileActionSuccess", "File deleted successfully.");
+        return createFileView(authentication, model);
     }
 
     @GetMapping("/view/{fileId}")

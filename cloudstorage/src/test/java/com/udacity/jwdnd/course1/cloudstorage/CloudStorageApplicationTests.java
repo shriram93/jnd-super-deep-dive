@@ -148,7 +148,7 @@ class CloudStorageApplicationTests {
 		// File with same name can't be upload twice
 		homePage.uploadFile();
 		wait.until(ExpectedConditions.visibilityOf(homePage.getFilesTable()));
-		assertEquals("File with same name already exists.", homePage.getFileUploadErrorMsg().getText());
+		assertEquals("File with same name already exists.", homePage.getFileActionErrorMsg().getText());
 
 		// Delete file
 		files = homePage.getFiles();

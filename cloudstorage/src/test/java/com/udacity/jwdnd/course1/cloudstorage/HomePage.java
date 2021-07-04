@@ -84,8 +84,11 @@ public class HomePage {
     @FindBy(css="#no-files-available-msg")
     private WebElement noFilesAvailableMsg;
 
-    @FindBy(css="#file-upload-error-msg")
-    private WebElement fileUploadErrorMsg;
+    @FindBy(css="#file-action-error-msg")
+    private WebElement fileActionErrorMsg;
+
+    @FindBy(css="#file-action-success-msg")
+    private WebElement fileActionSuccessMsg;
 
     public HomePage(WebDriver webDriver) {
         PageFactory.initElements(webDriver, this);
@@ -245,7 +248,11 @@ public class HomePage {
         return filesTable;
     }
 
-    public WebElement getFileUploadErrorMsg() {
-        return fileUploadErrorMsg;
+    public WebElement getFileActionErrorMsg() {
+        return fileActionErrorMsg;
+    }
+
+    public WebElement getFileActionSuccessMsg() {
+        return fileActionSuccessMsg;
     }
 }
