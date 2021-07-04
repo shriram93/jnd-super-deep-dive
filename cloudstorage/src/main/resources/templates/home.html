@@ -46,7 +46,7 @@
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
-                        <div th:if="${files.size() == 0}" class="alert alert-dark mt-4 text-center">
+                        <div th:if="${files.size() == 0}" id="no-files-available-msg" class="alert alert-dark mt-4 text-center">
                             No files available
                         </div>
                         <div th:unless="${files.size() == 0}" class="table-responsive mt-4">
@@ -58,14 +58,14 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                <tr th:each="file : ${files}">
+                                <tr th:each="file : ${files}" class="file">
                                     <td>
-                                        <a target="_blank" th:href="@{/home/files/view/{id}(id=${file.fileId})}" class="btn btn-success">View</a>
+                                        <a target="_blank" th:href="@{/home/files/view/{id}(id=${file.fileId})}" class="btn btn-success file-view-btn">View</a>
                                         <form action="#" th:action="@{/home/files/{id}(id=${file.fileId})}" class="d-inline" th:method="delete">
-                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                            <button type="submit" class="btn btn-danger file-delete-btn">Delete</button>
                                         </form>
                                     </td>
-                                    <th scope="row" th:text="${file.name}">ExampleFile.txt</th>
+                                    <th scope="row" th:text="${file.name}" class="file-name">ExampleFile.txt</th>
                                 </tr>
                                 </tbody>
                             </table>
@@ -77,7 +77,7 @@
                                 + Add a New Note
                             </button>
                         </div>
-                        <div th:if="${notes.size() == 0}" class="alert alert-dark mt-4 text-center">
+                        <div th:if="${notes.size() == 0}" id="no-notes-available-msg" class="alert alert-dark mt-4 text-center">
                             No notes available
                         </div>
                         <div th:unless="${notes.size() == 0}" class="table-responsive mt-4">
@@ -149,7 +149,7 @@
                             </button>
                         </div>
 
-                        <div th:if="${credentials.size() == 0}" class="alert alert-dark mt-4 text-center">
+                        <div th:if="${credentials.size() == 0}" id="no-credentials-available-msg" class="alert alert-dark mt-4 text-center">
                             No credentials available
                         </div>
 
@@ -164,9 +164,9 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                <tr th:each="credential : ${credentials}">
+                                <tr th:each="credential : ${credentials}" class="credential">
                                     <td>
-                                        <button type="button" class="btn btn-success"
+                                        <button type="button" class="btn btn-success credential-edit-btn"
                                                 th:data-credential-id="|${credential.credentialId}|"
                                                 th:data-credential-url="|${credential.url}|"
                                                 th:data-credential-username="|${credential.username}|"
@@ -177,12 +177,12 @@
                                                         this.getAttribute('data-credential-username'),
                                                         this.getAttribute('data-credential-password'))">Edit</button>
                                         <form action="#" th:action="@{/home/credentials/{id}(id=${credential.credentialId})}" class="d-inline" th:method="delete">
-                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                            <button type="submit" class="btn btn-danger credential-delete-btn">Delete</button>
                                         </form>
                                     </td>
-                                    <th scope="row" th:text="${credential.url}">Example Credential URL</th>
-                                    <td th:text="${credential.username}">Example Credential Username</td>
-                                    <td th:text="${credential.password}">Example Credential Password</td>
+                                    <th scope="row" th:text="${credential.url}" class="credential-url">Example Credential URL</th>
+                                    <td th:text="${credential.username}" class="credential-username">Example Credential Username</td>
+                                    <td th:text="${credential.password}" class="credential-password">Example Credential Password</td>
                                 </tr>
                                 </tbody>
                             </table>

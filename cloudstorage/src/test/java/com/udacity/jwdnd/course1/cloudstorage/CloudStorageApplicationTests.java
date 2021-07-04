@@ -13,7 +13,9 @@ import org.springframework.boot.web.server.LocalServerPort;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class CloudStorageApplicationTests {
 
@@ -39,9 +41,10 @@ class CloudStorageApplicationTests {
 	}
 
 	@AfterEach
-	public void afterEach() {
+	public void afterEach() throws InterruptedException {
 		if (this.driver != null) {
-//			driver.quit();
+			Thread.sleep(5000);
+			driver.quit();
 		}
 	}
 
@@ -60,6 +63,7 @@ class CloudStorageApplicationTests {
 		loginPage.login(username, password);
 	}
 
+	@Order(1)
 	@Test
 	public void loginInvalid() {
 		String username = "user";
@@ -73,6 +77,7 @@ class CloudStorageApplicationTests {
 				loginPage.getInvalidUsernameOrPasswordMessage().getText());
 	}
 
+	@Order(2)
 	@Test
 	public void loginSuccess() {
 		String firstName = "userFirstName";
@@ -91,6 +96,7 @@ class CloudStorageApplicationTests {
 		assertEquals(baseURL + "/home/files", driver.getCurrentUrl());
 	}
 
+	@Order(3)
 	@Test
 	public void signupSuccess() {
 		String firstName = "someNewUserFirstName";
@@ -106,6 +112,7 @@ class CloudStorageApplicationTests {
 				signupPage.getSignupSuccessMessage().getText());
 	}
 
+	@Order(4)
 	@Test
 	public void signupUserAlreadyExistsSignup() {
 		String firstName = "testFirstName";
@@ -122,6 +129,7 @@ class CloudStorageApplicationTests {
 				signupPage.getSignupErrorMessage().getText());
 	}
 
+	@Order(5)
 	@Test
 	public void homeLogoutSuccess() {
 		signupAndLogin();
@@ -131,6 +139,7 @@ class CloudStorageApplicationTests {
 		assertEquals(baseURL + "/login", driver.getCurrentUrl());
 	}
 
+	@Order(6)
 	@Test
 	public void homeNavbarShouldRouteProperly() {
 		signupAndLogin();
@@ -148,16 +157,93 @@ class CloudStorageApplicationTests {
 		assertEquals(baseURL + "/home/files", driver.getCurrentUrl());
 	}
 
+	@Order(7)
 	@Test
-	public void notesAddNoteSuccess() {
+	public void testNotes() {
 		signupAndLogin();
 		HomePage homePage = new HomePage(driver);
 		homePage.getNavbarNotesTab().click();
+		wait.until(ExpectedConditions.visibilityOf(homePage.getNoNotesAvailableMsg()));
+
+		// Add note
 		homePage.getAddNoteBtn().click();
 		wait.until(ExpectedConditions.visibilityOf(homePage.getNoteTitleInput()));
-		homePage.addNote("note title", "note description");
+		String noteTitle = "note title";
+		String noteDescription = "note desc";
+		homePage.addNote(noteTitle, noteDescription);
 		wait.until(ExpectedConditions.visibilityOf(homePage.getNotesTable()));
 		List<WebElement> notes = homePage.getNotes();
+		WebElement note = notes.get(0);
 		assertEquals(1, notes.size());
+		assertEquals(noteTitle, homePage.getNoteTitle(note).getText());
+		assertEquals(noteDescription, homePage.getNoteDescription(note).getText());
+
+		// Edit note
+		homePage.getNoteEditBtn(note).click();
+		wait.until(ExpectedConditions.visibilityOf(homePage.getNoteTitleInput()));
+		noteTitle = "note title modified";
+		noteDescription = "note desc modified";
+		homePage.addNote(noteTitle, noteDescription);
+		wait.until(ExpectedConditions.visibilityOf(homePage.getNotesTable()));
+		notes = homePage.getNotes();
+		note = notes.get(0);
+		assertEquals(noteTitle, homePage.getNoteTitle(note).getText());
+		assertEquals(noteDescription, homePage.getNoteDescription(note).getText());
+
+		// Delete note
+		homePage.getNoteDeleteBtn(note).click();
+		wait.until(ExpectedConditions.visibilityOf(homePage.getNoNotesAvailableMsg()));
+		notes = homePage.getNotes();
+		assertEquals(0, notes.size());
+		assertEquals("No notes available", homePage.getNoNotesAvailableMsg().getText());
+	}
+
+	@Order(8)
+	@Test
+	public void testCredentials() {
+		signupAndLogin();
+		HomePage homePage = new HomePage(driver);
+		homePage.getNavbarCredentialsTab().click();
+		wait.until(ExpectedConditions.visibilityOf(homePage.getNoCredentialsAvailableMsg()));
+
+		// Add credentials
+		homePage.getAddCredentialBtn().click();
+		wait.until(ExpectedConditions.visibilityOf(homePage.getCredentialUrlInput()));
+		String credentialUrl = "cred url";
+		String credentialUsername = "cred username";
+		String credentialPassword = "cred password";
+		homePage.addCredential(credentialUrl, credentialUsername, credentialPassword);
+		wait.until(ExpectedConditions.visibilityOf(homePage.getCredentialsTable()));
+		List<WebElement> credentials = homePage.getCredentials();
+		assertEquals(1, credentials.size());
+		WebElement credential = credentials.get(0);
+		assertEquals(credentialUrl, homePage.getCredentialUrl(credential).getText());
+		assertEquals(credentialUsername, homePage.getCredentialUsername(credential).getText());
+		// Password is encrypted
+		assertNotEquals(credentialPassword, homePage.getCredentialPassword(credential).getText());
+
+		// Edit credentials
+		homePage.getCredentialEditBtn(credential).click();
+		wait.until(ExpectedConditions.visibilityOf(homePage.getCredentialUrlInput()));
+		// On edit, decrypted password will be shown
+		assertEquals(credentialPassword, homePage.getCredentialPasswordInput().getAttribute("value"));
+		credentialUrl = "modified cred url";
+		credentialUsername = "modified cred username";
+		credentialPassword = "modified cred password";
+		homePage.addCredential(credentialUrl, credentialUsername, credentialPassword);
+		wait.until(ExpectedConditions.visibilityOf(homePage.getCredentialsTable()));
+		credentials = homePage.getCredentials();
+		credential = credentials.get(0);
+		assertEquals(credentialUrl, homePage.getCredentialUrl(credential).getText());
+		assertEquals(credentialUsername, homePage.getCredentialUsername(credential).getText());
+		// Password is encrypted
+		assertNotEquals(credentialPassword, homePage.getCredentialPassword(credential).getText());
+
+		// Delete credentials
+		homePage.getCredentialDeleteBtn(credential).click();
+		wait.until(ExpectedConditions.visibilityOf(homePage.getNoCredentialsAvailableMsg()));
+		credentials = homePage.getCredentials();
+		assertEquals(0, credentials.size());
+		assertEquals("No credentials available", homePage.getNoCredentialsAvailableMsg().getText());
 	}
 }
