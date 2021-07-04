@@ -6,6 +6,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +16,7 @@ public class HomePage {
     private WebElement logOutBtn;
 
     @FindBy(css="#fileUpload")
-    private WebElement fileUploadBtn;
+    private WebElement fileUploadInput;
 
     @FindBy(css="#upload-btn")
     private WebElement uploadBtn;
@@ -74,11 +75,17 @@ public class HomePage {
     @FindBy(css=".credential")
     private List<WebElement> credentials;
 
+    @FindBy(css="#files-table")
+    private WebElement filesTable;
+
     @FindBy(css=".file")
     private List<WebElement> files;
 
     @FindBy(css="#no-files-available-msg")
     private WebElement noFilesAvailableMsg;
+
+    @FindBy(css="#file-upload-error-msg")
+    private WebElement fileUploadErrorMsg;
 
     public HomePage(WebDriver webDriver) {
         PageFactory.initElements(webDriver, this);
@@ -100,6 +107,22 @@ public class HomePage {
         credentialPasswordInput.clear();
         credentialPasswordInput.sendKeys(password);
         credentialSubmitBtn.click();
+    }
+
+    public String getFileName() {
+        return "sample-image.jpeg";
+    }
+
+    private String getFilePath(String fileName) {
+        String currPath = System.getProperty("user.dir") + "/src/test/java/com/udacity/jwdnd/course1/cloudstorage";
+        return currPath +"/" + fileName;
+    }
+
+    public void uploadFile() {
+        File imgFile = new File(getFilePath(getFileName()));
+        fileUploadInput.clear();
+        fileUploadInput.sendKeys(imgFile.getAbsolutePath());
+        uploadBtn.click();
     }
 
     public List<WebElement> getNotes() {
@@ -146,16 +169,24 @@ public class HomePage {
         return credential.findElement(By.className("credential-password"));
     }
 
+    public List<WebElement> getFiles() {
+        return files;
+    }
+
+    public WebElement getFileViewBtn(WebElement file) {
+        return file.findElement(By.className("file-view-btn"));
+    }
+
+    public WebElement getFileDeleteBtn(WebElement file) {
+        return file.findElement(By.className("file-delete-btn"));
+    }
+
+    public WebElement getFileName(WebElement file) {
+        return file.findElement(By.className("file-name"));
+    }
+
     public WebElement getLogOutBtn() {
         return logOutBtn;
-    }
-
-    public WebElement getUploadBtn() {
-        return uploadBtn;
-    }
-
-    public WebElement getFileUploadBtn() {
-        return fileUploadBtn;
     }
 
     public WebElement getNavbarFilesTab() {
@@ -204,5 +235,17 @@ public class HomePage {
 
     public WebElement getNoCredentialsAvailableMsg() {
         return noCredentialsAvailableMsg;
+    }
+
+    public WebElement getNoFilesAvailableMsg() {
+        return noFilesAvailableMsg;
+    }
+
+    public WebElement getFilesTable() {
+        return filesTable;
+    }
+
+    public WebElement getFileUploadErrorMsg() {
+        return fileUploadErrorMsg;
     }
 }

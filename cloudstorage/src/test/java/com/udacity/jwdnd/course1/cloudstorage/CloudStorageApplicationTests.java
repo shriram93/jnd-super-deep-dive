@@ -10,7 +10,9 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -43,7 +45,6 @@ class CloudStorageApplicationTests {
 	@AfterEach
 	public void afterEach() throws InterruptedException {
 		if (this.driver != null) {
-			Thread.sleep(5000);
 			driver.quit();
 		}
 	}
@@ -245,5 +246,44 @@ class CloudStorageApplicationTests {
 		credentials = homePage.getCredentials();
 		assertEquals(0, credentials.size());
 		assertEquals("No credentials available", homePage.getNoCredentialsAvailableMsg().getText());
+	}
+
+	@Order(9)
+	@Test
+	public void testFiles() {
+		signupAndLogin();
+		HomePage homePage = new HomePage(driver);
+		homePage.getNavbarFilesTab().click();
+		wait.until(ExpectedConditions.visibilityOf(homePage.getNoFilesAvailableMsg()));
+
+		// Add file
+		homePage.uploadFile();
+		wait.until(ExpectedConditions.visibilityOf(homePage.getFilesTable()));
+		List<WebElement> files = homePage.getFiles();
+		assertEquals(1, files.size());
+		WebElement file = files.get(0);
+		assertEquals(homePage.getFileName(), homePage.getFileName(file).getText());
+
+		// View file
+		homePage.getFileViewBtn(file).click();
+		List<String> tabs = new ArrayList(driver.getWindowHandles());
+		driver.switchTo().window(tabs.get(1));
+		assertEquals(baseURL + "/home/files/view/1", driver.getCurrentUrl());
+		driver.close();
+		driver.switchTo().window(tabs.get(0));
+
+		// File with same name can't be upload twice
+		homePage.uploadFile();
+		wait.until(ExpectedConditions.visibilityOf(homePage.getFilesTable()));
+		assertEquals("File with same name already exists.", homePage.getFileUploadErrorMsg().getText());
+
+		// Delete file
+		files = homePage.getFiles();
+		file = files.get(0);
+		homePage.getFileDeleteBtn(file).click();
+		wait.until(ExpectedConditions.visibilityOf(homePage.getNoFilesAvailableMsg()));
+		files = homePage.getFiles();
+		assertEquals(0, files.size());
+		assertEquals("No files available", homePage.getNoFilesAvailableMsg().getText());
 	}
 }
