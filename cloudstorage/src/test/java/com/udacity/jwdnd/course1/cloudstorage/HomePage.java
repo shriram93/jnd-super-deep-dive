@@ -90,6 +90,12 @@ public class HomePage {
     @FindBy(css="#file-action-success-msg")
     private WebElement fileActionSuccessMsg;
 
+    @FindBy(css="#note-action-success-msg")
+    private WebElement noteActionSuccessMsg;
+
+    @FindBy(css="#credential-action-success-msg")
+    private WebElement credentialActionSuccessMsg;
+
     public HomePage(WebDriver webDriver) {
         PageFactory.initElements(webDriver, this);
     }
@@ -254,5 +260,13 @@ public class HomePage {
 
     public WebElement getFileActionSuccessMsg() {
         return fileActionSuccessMsg;
+    }
+
+    public WebElement getNoteActionSuccessMsg() {
+        return noteActionSuccessMsg;
+    }
+
+    public WebElement getCredentialActionSuccessMsg() {
+        return credentialActionSuccessMsg;
     }
 }

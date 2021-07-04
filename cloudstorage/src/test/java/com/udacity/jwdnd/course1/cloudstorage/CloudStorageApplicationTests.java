@@ -132,6 +132,7 @@ class CloudStorageApplicationTests {
 		// Add file
 		homePage.uploadFile();
 		wait.until(ExpectedConditions.visibilityOf(homePage.getFilesTable()));
+		assertEquals("File uploaded successfully.", homePage.getFileActionSuccessMsg().getText());
 		List<WebElement> files = homePage.getFiles();
 		assertEquals(1, files.size());
 		WebElement file = files.get(0);
@@ -155,6 +156,7 @@ class CloudStorageApplicationTests {
 		file = files.get(0);
 		homePage.getFileDeleteBtn(file).click();
 		wait.until(ExpectedConditions.visibilityOf(homePage.getNoFilesAvailableMsg()));
+		assertEquals("File deleted successfully.", homePage.getFileActionSuccessMsg().getText());
 		files = homePage.getFiles();
 		assertEquals(0, files.size());
 		assertEquals("No files available", homePage.getNoFilesAvailableMsg().getText());
@@ -175,6 +177,7 @@ class CloudStorageApplicationTests {
 		String noteDescription = "note desc";
 		homePage.addNote(noteTitle, noteDescription);
 		wait.until(ExpectedConditions.visibilityOf(homePage.getNotesTable()));
+		assertEquals("Note added successfully.", homePage.getNoteActionSuccessMsg().getText());
 		List<WebElement> notes = homePage.getNotes();
 		WebElement note = notes.get(0);
 		assertEquals(1, notes.size());
@@ -188,6 +191,7 @@ class CloudStorageApplicationTests {
 		noteDescription = "note desc modified";
 		homePage.addNote(noteTitle, noteDescription);
 		wait.until(ExpectedConditions.visibilityOf(homePage.getNotesTable()));
+		assertEquals("Note updated successfully.", homePage.getNoteActionSuccessMsg().getText());
 		notes = homePage.getNotes();
 		note = notes.get(0);
 		assertEquals(noteTitle, homePage.getNoteTitle(note).getText());
@@ -196,6 +200,7 @@ class CloudStorageApplicationTests {
 		// Delete note
 		homePage.getNoteDeleteBtn(note).click();
 		wait.until(ExpectedConditions.visibilityOf(homePage.getNoNotesAvailableMsg()));
+		assertEquals("Note deleted successfully.", homePage.getNoteActionSuccessMsg().getText());
 		notes = homePage.getNotes();
 		assertEquals(0, notes.size());
 		assertEquals("No notes available", homePage.getNoNotesAvailableMsg().getText());
@@ -217,6 +222,7 @@ class CloudStorageApplicationTests {
 		String credentialPassword = "cred password";
 		homePage.addCredential(credentialUrl, credentialUsername, credentialPassword);
 		wait.until(ExpectedConditions.visibilityOf(homePage.getCredentialsTable()));
+		assertEquals("Credential added successfully.", homePage.getCredentialActionSuccessMsg().getText());
 		List<WebElement> credentials = homePage.getCredentials();
 		assertEquals(1, credentials.size());
 		WebElement credential = credentials.get(0);
@@ -235,6 +241,7 @@ class CloudStorageApplicationTests {
 		credentialPassword = "modified cred password";
 		homePage.addCredential(credentialUrl, credentialUsername, credentialPassword);
 		wait.until(ExpectedConditions.visibilityOf(homePage.getCredentialsTable()));
+		assertEquals("Credential updated successfully.", homePage.getCredentialActionSuccessMsg().getText());
 		credentials = homePage.getCredentials();
 		credential = credentials.get(0);
 		assertEquals(credentialUrl, homePage.getCredentialUrl(credential).getText());
@@ -245,6 +252,7 @@ class CloudStorageApplicationTests {
 		// Delete credentials
 		homePage.getCredentialDeleteBtn(credential).click();
 		wait.until(ExpectedConditions.visibilityOf(homePage.getNoCredentialsAvailableMsg()));
+		assertEquals("Credential deleted successfully.", homePage.getCredentialActionSuccessMsg().getText());
 		credentials = homePage.getCredentials();
 		assertEquals(0, credentials.size());
 		assertEquals("No credentials available", homePage.getNoCredentialsAvailableMsg().getText());
