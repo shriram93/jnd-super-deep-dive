@@ -49,8 +49,13 @@ class CloudStorageApplicationTests {
 	}
 
 	private void loginUser() {
+		String firstName = "firstName";
+		String lastName = "lastName";
 		String username = "userName";
 		String password = "password";
+		driver.get(baseURL + "/signup");
+		SignupPage signupPage = new SignupPage(driver);
+		signupPage.signup(firstName, lastName, username, password);
 		driver.get(baseURL + "/login");
 		LoginPage loginPage = new LoginPage(driver);
 		loginPage.login(username, password);
@@ -243,5 +248,34 @@ class CloudStorageApplicationTests {
 		credentials = homePage.getCredentials();
 		assertEquals(0, credentials.size());
 		assertEquals("No credentials available", homePage.getNoCredentialsAvailableMsg().getText());
+	}
+
+	@Order(6)
+	@Test
+	public void testAccessRestrictions() {
+		// Without login, used should have access only to login and signup page
+		driver.get(baseURL + "/login");
+		assertEquals(baseURL + "/login", driver.getCurrentUrl());
+		driver.get(baseURL + "/signup");
+		assertEquals(baseURL + "/signup", driver.getCurrentUrl());
+		driver.get(baseURL + "/home");
+		assertEquals(baseURL + "/login", driver.getCurrentUrl());
+		driver.get(baseURL + "/home/files");
+		assertEquals(baseURL + "/login", driver.getCurrentUrl());
+		driver.get(baseURL + "/home/files/view/1");
+		assertEquals(baseURL + "/login", driver.getCurrentUrl());
+		driver.get(baseURL + "/home/notes");
+		assertEquals(baseURL + "/login", driver.getCurrentUrl());
+		driver.get(baseURL + "/home/credentials");
+		assertEquals(baseURL + "/login", driver.getCurrentUrl());
+
+		// Check if home page is accessible after logout
+		loginUser();
+		assertEquals(baseURL + "/home/files", driver.getCurrentUrl());
+		HomePage homePage = new HomePage(driver);
+		homePage.getLogOutBtn().click();
+		assertEquals(baseURL + "/login", driver.getCurrentUrl());
+		driver.get(baseURL + "/home");
+		assertEquals(baseURL + "/login", driver.getCurrentUrl());
 	}
 }
