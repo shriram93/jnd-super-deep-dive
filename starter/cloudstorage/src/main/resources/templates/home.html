@@ -52,12 +52,14 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                <tr>
+                                <tr th:each="file : ${files}">
                                     <td>
-                                        <a target="_blank" class="btn btn-success">View</a>
-                                        <a  class="btn btn-danger">Delete</a>
+                                        <a target="_blank" th:href="@{/home/files/view/{id}(id=${file.fileId})}" class="btn btn-success">View</a>
+                                        <form action="#" th:action="@{/home/files/{id}(id=${file.fileId})}" class="d-inline" th:method="delete">
+                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                        </form>
                                     </td>
-                                    <th scope="row">ExampleFile.txt</th>
+                                    <th scope="row" th:text="${file.name}">ExampleFile.txt</th>
                                 </tr>
                                 </tbody>
                             </table>
