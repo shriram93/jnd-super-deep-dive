@@ -18,6 +18,9 @@ public class LoginPage {
     @FindBy(css="#invalid-username-or-password-msg")
     private WebElement invalidUsernameOrPasswordMessage;
 
+    @FindBy(css="#signup-link")
+    private WebElement signupLink;
+
     public LoginPage(WebDriver webDriver) {
         PageFactory.initElements(webDriver, this);
     }
@@ -30,5 +33,9 @@ public class LoginPage {
 
     public WebElement getInvalidUsernameOrPasswordMessage() {
         return invalidUsernameOrPasswordMessage;
+    }
+
+    public WebElement getSignupLink() {
+        return signupLink;
     }
 }

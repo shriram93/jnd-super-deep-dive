@@ -27,6 +27,9 @@ public class SignupPage {
     @FindBy(css="#signup-error-msg")
     private WebElement signupErrorMessage;
 
+    @FindBy(css="#back-to-login-link")
+    private WebElement backToLoginLink;
+
     public SignupPage(WebDriver webDriver) {
         PageFactory.initElements(webDriver, this);
     }
@@ -45,5 +48,9 @@ public class SignupPage {
 
     public WebElement getSignupSuccessMessage() {
         return signupSuccessMessage;
+    }
+
+    public WebElement getBackToLoginLink() {
+        return backToLoginLink;
     }
 }

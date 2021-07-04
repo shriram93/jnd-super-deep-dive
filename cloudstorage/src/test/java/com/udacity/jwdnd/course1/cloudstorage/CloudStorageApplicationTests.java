@@ -12,7 +12,6 @@ import org.springframework.boot.web.server.LocalServerPort;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -43,109 +42,68 @@ class CloudStorageApplicationTests {
 	}
 
 	@AfterEach
-	public void afterEach() throws InterruptedException {
+	public void afterEach() {
 		if (this.driver != null) {
 			driver.quit();
 		}
 	}
 
-	private void signupAndLogin() {
-		String firstName = "testFirstName";
-		String lastName = "testLastName";
-		String username = "testUsername";
-		String password = "testPassword";
-		driver.get(baseURL + "/signup");
-
-		SignupPage signupPage = new SignupPage(driver);
-		signupPage.signup(firstName, lastName, username, password);
+	private void loginUser() {
+		String username = "userName";
+		String password = "password";
 		driver.get(baseURL + "/login");
-
 		LoginPage loginPage = new LoginPage(driver);
 		loginPage.login(username, password);
 	}
 
 	@Order(1)
 	@Test
-	public void loginInvalid() {
-		String username = "user";
+	public void testLoginAndSignupPage() {
+		String firstName = "firstName";
+		String lastName = "lastName";
+		String username = "userName";
 		String password = "password";
-		driver.get(baseURL + "/login");
 
+		// Invalid user
+		driver.get(baseURL + "/login");
 		LoginPage loginPage = new LoginPage(driver);
 		loginPage.login(username, password);
-
 		assertEquals("Invalid username or password",
 				loginPage.getInvalidUsernameOrPasswordMessage().getText());
+		loginPage.getSignupLink().click();
+		assertEquals(baseURL + "/signup", driver.getCurrentUrl());
+
+		// Signup
+		SignupPage signupPage = new SignupPage(driver);
+		signupPage.signup(firstName, lastName, username, password);
+		assertEquals("You successfully signed up! Please continue to the login page.",
+				signupPage.getSignupSuccessMessage().getText());
+
+		// Signup user already exists
+		signupPage.signup(firstName, lastName, username, password);
+		assertEquals("The username already exists.",
+				signupPage.getSignupErrorMessage().getText());
+		signupPage.getBackToLoginLink().click();
+		assertEquals(baseURL + "/login", driver.getCurrentUrl());
+
+		// Login
+		loginPage = new LoginPage(driver);
+		loginPage.login(username, password);
+		assertEquals(baseURL + "/home/files", driver.getCurrentUrl());
 	}
 
 	@Order(2)
 	@Test
-	public void loginSuccess() {
-		String firstName = "userFirstName";
-		String lastName = "userLastName";
-		String username = "userUsername";
-		String password = "userPassword";
-		driver.get(baseURL + "/signup");
+	public void testHome() {
+		loginUser();
 
-		SignupPage signupPage = new SignupPage(driver);
-		signupPage.signup(firstName, lastName, username, password);
-		driver.get(baseURL + "/login");
-
-		LoginPage loginPage = new LoginPage(driver);
-		loginPage.login(username, password);
-
-		assertEquals(baseURL + "/home/files", driver.getCurrentUrl());
-	}
-
-	@Order(3)
-	@Test
-	public void signupSuccess() {
-		String firstName = "someNewUserFirstName";
-		String lastName = "someNewUserLastName";
-		String username = "someNewUserUsername";
-		String password = "someNewUserPassword";
-		driver.get(baseURL + "/signup");
-
-		SignupPage signupPage = new SignupPage(driver);
-		signupPage.signup(firstName, lastName, username, password);
-
-		assertEquals("You successfully signed up! Please continue to the login page.",
-				signupPage.getSignupSuccessMessage().getText());
-	}
-
-	@Order(4)
-	@Test
-	public void signupUserAlreadyExistsSignup() {
-		String firstName = "testFirstName";
-		String lastName = "testLastName";
-		String username = "testUsername";
-		String password = "testPassword";
-		driver.get(baseURL + "/signup");
-
-		SignupPage signupPage = new SignupPage(driver);
-		signupPage.signup(firstName, lastName, username, password);
-		signupPage.signup(firstName, lastName, username, password);
-
-		assertEquals("The username already exists.",
-				signupPage.getSignupErrorMessage().getText());
-	}
-
-	@Order(5)
-	@Test
-	public void homeLogoutSuccess() {
-		signupAndLogin();
-
+		// Logout
 		HomePage homePage = new HomePage(driver);
 		homePage.getLogOutBtn().click();
 		assertEquals(baseURL + "/login", driver.getCurrentUrl());
-	}
 
-	@Order(6)
-	@Test
-	public void homeNavbarShouldRouteProperly() {
-		signupAndLogin();
-
-		HomePage homePage = new HomePage(driver);
+		// Nav tabs
+		loginUser();
 		assertEquals(baseURL + "/home/files", driver.getCurrentUrl());
 
 		homePage.getNavbarNotesTab().click();
@@ -158,10 +116,49 @@ class CloudStorageApplicationTests {
 		assertEquals(baseURL + "/home/files", driver.getCurrentUrl());
 	}
 
-	@Order(7)
+	@Order(3)
+	@Test
+	public void testFiles() {
+		loginUser();
+		HomePage homePage = new HomePage(driver);
+		homePage.getNavbarFilesTab().click();
+		wait.until(ExpectedConditions.visibilityOf(homePage.getNoFilesAvailableMsg()));
+
+		// Add file
+		homePage.uploadFile();
+		wait.until(ExpectedConditions.visibilityOf(homePage.getFilesTable()));
+		List<WebElement> files = homePage.getFiles();
+		assertEquals(1, files.size());
+		WebElement file = files.get(0);
+		assertEquals(homePage.getFileName(), homePage.getFileName(file).getText());
+
+		// View file
+		homePage.getFileViewBtn(file).click();
+		List<String> tabs = new ArrayList(driver.getWindowHandles());
+		driver.switchTo().window(tabs.get(1));
+		assertEquals(baseURL + "/home/files/view/1", driver.getCurrentUrl());
+		driver.close();
+		driver.switchTo().window(tabs.get(0));
+
+		// File with same name can't be upload twice
+		homePage.uploadFile();
+		wait.until(ExpectedConditions.visibilityOf(homePage.getFilesTable()));
+		assertEquals("File with same name already exists.", homePage.getFileUploadErrorMsg().getText());
+
+		// Delete file
+		files = homePage.getFiles();
+		file = files.get(0);
+		homePage.getFileDeleteBtn(file).click();
+		wait.until(ExpectedConditions.visibilityOf(homePage.getNoFilesAvailableMsg()));
+		files = homePage.getFiles();
+		assertEquals(0, files.size());
+		assertEquals("No files available", homePage.getNoFilesAvailableMsg().getText());
+	}
+
+	@Order(4)
 	@Test
 	public void testNotes() {
-		signupAndLogin();
+		loginUser();
 		HomePage homePage = new HomePage(driver);
 		homePage.getNavbarNotesTab().click();
 		wait.until(ExpectedConditions.visibilityOf(homePage.getNoNotesAvailableMsg()));
@@ -199,10 +196,10 @@ class CloudStorageApplicationTests {
 		assertEquals("No notes available", homePage.getNoNotesAvailableMsg().getText());
 	}
 
-	@Order(8)
+	@Order(5)
 	@Test
 	public void testCredentials() {
-		signupAndLogin();
+		loginUser();
 		HomePage homePage = new HomePage(driver);
 		homePage.getNavbarCredentialsTab().click();
 		wait.until(ExpectedConditions.visibilityOf(homePage.getNoCredentialsAvailableMsg()));
@@ -246,44 +243,5 @@ class CloudStorageApplicationTests {
 		credentials = homePage.getCredentials();
 		assertEquals(0, credentials.size());
 		assertEquals("No credentials available", homePage.getNoCredentialsAvailableMsg().getText());
-	}
-
-	@Order(9)
-	@Test
-	public void testFiles() {
-		signupAndLogin();
-		HomePage homePage = new HomePage(driver);
-		homePage.getNavbarFilesTab().click();
-		wait.until(ExpectedConditions.visibilityOf(homePage.getNoFilesAvailableMsg()));
-
-		// Add file
-		homePage.uploadFile();
-		wait.until(ExpectedConditions.visibilityOf(homePage.getFilesTable()));
-		List<WebElement> files = homePage.getFiles();
-		assertEquals(1, files.size());
-		WebElement file = files.get(0);
-		assertEquals(homePage.getFileName(), homePage.getFileName(file).getText());
-
-		// View file
-		homePage.getFileViewBtn(file).click();
-		List<String> tabs = new ArrayList(driver.getWindowHandles());
-		driver.switchTo().window(tabs.get(1));
-		assertEquals(baseURL + "/home/files/view/1", driver.getCurrentUrl());
-		driver.close();
-		driver.switchTo().window(tabs.get(0));
-
-		// File with same name can't be upload twice
-		homePage.uploadFile();
-		wait.until(ExpectedConditions.visibilityOf(homePage.getFilesTable()));
-		assertEquals("File with same name already exists.", homePage.getFileUploadErrorMsg().getText());
-
-		// Delete file
-		files = homePage.getFiles();
-		file = files.get(0);
-		homePage.getFileDeleteBtn(file).click();
-		wait.until(ExpectedConditions.visibilityOf(homePage.getNoFilesAvailableMsg()));
-		files = homePage.getFiles();
-		assertEquals(0, files.size());
-		assertEquals("No files available", homePage.getNoFilesAvailableMsg().getText());
 	}
 }
