@@ -287,5 +287,15 @@ class CloudStorageApplicationTests {
 		assertEquals(baseURL + "/login", driver.getCurrentUrl());
 		driver.get(baseURL + "/home");
 		assertEquals(baseURL + "/login", driver.getCurrentUrl());
+
+		// Should redirect to 404 page not found for invalid requests
+		loginUser();
+		assertEquals(baseURL + "/home/files", driver.getCurrentUrl());
+		driver.get(baseURL + "/home/files/test");
+		assertEquals("404 - Not Found", driver.getTitle());
+		ErrorPage errorPage = new ErrorPage(driver);
+		errorPage.getHomeRedirectBtn().click();
+		assertEquals(baseURL + "/home/files", driver.getCurrentUrl());
+
 	}
 }
