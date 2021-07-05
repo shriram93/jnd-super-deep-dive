@@ -18,6 +18,9 @@ public class LoginPage {
     @FindBy(css="#invalid-username-or-password-msg")
     private WebElement invalidUsernameOrPasswordMessage;
 
+    @FindBy(css="#user-signup-success-msg")
+    private WebElement userSuccessfulSignupMessage;
+
     @FindBy(css="#signup-link")
     private WebElement signupLink;
 
@@ -37,5 +40,9 @@ public class LoginPage {
 
     public WebElement getSignupLink() {
         return signupLink;
+    }
+
+    public WebElement getUserSuccessfulSignupMessage() {
+        return userSuccessfulSignupMessage;
     }
 }

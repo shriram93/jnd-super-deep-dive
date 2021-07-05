@@ -81,10 +81,13 @@ class CloudStorageApplicationTests {
 		// Signup
 		SignupPage signupPage = new SignupPage(driver);
 		signupPage.signup(firstName, lastName, username, password);
-		assertEquals("You successfully signed up! Please continue to the login page.",
-				signupPage.getSignupSuccessMessage().getText());
+		assertEquals(baseURL + "/login?success", driver.getCurrentUrl());
+		assertEquals("You successfully signed up! Login to continue",
+				loginPage.getUserSuccessfulSignupMessage().getText());
 
 		// Signup user already exists
+		loginPage.getSignupLink().click();
+		assertEquals(baseURL + "/signup", driver.getCurrentUrl());
 		signupPage.signup(firstName, lastName, username, password);
 		assertEquals("The username already exists.",
 				signupPage.getSignupErrorMessage().getText());
@@ -92,7 +95,6 @@ class CloudStorageApplicationTests {
 		assertEquals(baseURL + "/login", driver.getCurrentUrl());
 
 		// Login
-		loginPage = new LoginPage(driver);
 		loginPage.login(username, password);
 		assertEquals(baseURL + "/home/files", driver.getCurrentUrl());
 	}

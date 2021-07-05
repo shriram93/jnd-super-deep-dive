@@ -21,9 +21,6 @@ public class SignupPage {
     @FindBy(css="#submit-btn")
     private WebElement submitButton;
 
-    @FindBy(css="#signup-success-msg")
-    private WebElement signupSuccessMessage;
-
     @FindBy(css="#signup-error-msg")
     private WebElement signupErrorMessage;
 
@@ -44,10 +41,6 @@ public class SignupPage {
 
     public WebElement getSignupErrorMessage() {
         return signupErrorMessage;
-    }
-
-    public WebElement getSignupSuccessMessage() {
-        return signupSuccessMessage;
     }
 
     public WebElement getBackToLoginLink() {
